@@ -23,6 +23,11 @@ export async function startWhatsappBot() {
     browser: ['Codex Mutatio', 'Chrome', '1.0.0'],
     markOnlineOnConnect: false,
     syncFullHistory: false,
+    shouldSyncHistoryMessage: () => false,
+    generateHighQualityLinkPreview: false,
+    connectTimeoutMs: 60000,
+    defaultQueryTimeoutMs: 60000,
+    keepAliveIntervalMs: 10000
   });
 
   sock.ev.on('connection.update', async ({ connection, lastDisconnect, qr }) => {
@@ -40,7 +45,11 @@ export async function startWhatsappBot() {
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
       if (shouldReconnect) {
-        await startWhatsappBot();
+        console.log('🔄 Reconectando WhatsApp...');
+  
+        setTimeout(() => {
+          startWhatsappBot();
+        }, 5000);
       }
     }
   });
