@@ -1,0 +1,21 @@
+services:
+  codex-whatsapp:
+    build: .
+    container_name: codex-whatsapp
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./auth_info_baileys:/app/auth_info_baileys
+      - ./public:/app/public
+    command: npm run whatsapp
+
+  codex-telegram:
+    build: .
+    container_name: codex-telegram
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./public:/app/public
+    command: npm run telegram
