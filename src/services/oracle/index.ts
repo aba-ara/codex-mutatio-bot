@@ -170,7 +170,7 @@ e quando estiver pronto, digite:
 JOGAR MOEDAS`;
 }
 
-export function handleWhatsappMessage(
+export function handleMessage(
   phone: string,
   message: string
 ): OracleResponse {

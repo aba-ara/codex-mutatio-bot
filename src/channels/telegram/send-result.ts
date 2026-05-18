@@ -1,5 +1,5 @@
-import { WASocket } from '@whiskeysockets/baileys';
-import { sendImageFile, sendImageUrl, sendText } from './sender';
+import fs from 'fs';
+import { Context } from 'telegraf';
 
 type OracleResult = {
   type: 'oracle_result';
@@ -10,11 +10,7 @@ type OracleResult = {
 };
 
 function formatHexagramText(hexagram: any, isComplement = false) {
-  return `☯ HEXAGRAMA ${isComplement ? 'COMPLEMENTAR' : 'PRINCIPAL'}
-
-Código: ${hexagram?.code}
-Título: ${hexagram?.title}
-Significado: ${hexagram?.imageTitle}
+  return `Significado: ${hexagram?.imageTitle}
 No interior: ${hexagram?.inside}
 No exterior: ${hexagram?.outside}
 
@@ -61,15 +57,8 @@ O QR Code será enviado logo abaixo.
 Namastê. ☯`;
 }
 
-export async function sendResult(
-  sock: WASocket,
-  jid: string,
-  response: OracleResult
-) {
-  await sendText(
-    sock,
-    jid,
-    `🪙 As moedas foram lançadas...
+export async function sendResult(ctx: Context, response: OracleResult) {
+  await ctx.reply(`🪙 As moedas foram lançadas...
 
 ☯ LEITURA DAS MOEDAS
 
@@ -79,10 +68,9 @@ COROA = 3 = ---
 ☰ POLARIDADES
 
 YIN = --
-YANG = ---`
-  );
+YANG = ---`);
 
-  await sendText(sock, jid, `☯ Linhas geradas:
+  await ctx.reply(`☯ Linhas geradas:
     
 ${response.result}
 
@@ -97,26 +85,38 @@ ${response.result}
 ☲ Fogo = --- / -- / ---
 ☱ Lago = -- / --- / ---`);
 
-  await sendImageUrl(
-    sock,
-    jid,
-    response.principal.image,
-    formatHexagramText(response.principal, false)
+  await ctx.replyWithPhoto(
+    { source: fs.readFileSync(response.principal.image) },
+    {
+    caption: `☯ HEXAGRAMA PRINCIPAL
+
+Código: ${response.principal?.code}
+Título: ${response.principal?.title}`,
+    }
   );
 
-  await sendImageUrl(
-    sock,
-    jid,
-    response.complement.image,
-    formatHexagramText(response.complement, true)
+  await ctx.reply(formatHexagramText(response.principal, false));
+
+  await ctx.replyWithPhoto(
+    { source: fs.readFileSync(response.complement.image) },
+    {
+    caption: `☯ HEXAGRAMA COMPLEMENTAR
+
+Código: ${response.complement?.code}
+Título: ${response.complement?.title}`,
+    }
   );
 
-  await sendText(sock, jid, getClosingText());
+  await ctx.reply(formatHexagramText(response.complement, true));
 
-  await sendImageFile(
-    sock,
-    jid,
-    './public/assets/images/livepix/qr-code.png',
-    '✨ Apoie o projeto Codex Mutatio via LivePix'
-  );
+  await ctx.reply(getClosingText());
+
+  const livepixPath = './public/assets/images/livepix/qr-code.png';
+
+  if (fs.existsSync(livepixPath)) {
+    await ctx.replyWithPhoto(
+      { source: fs.readFileSync(livepixPath) },
+      { caption: '✨ Apoie o projeto Codex Mutatio via LivePix' }
+    );
+  }
 }

@@ -10,7 +10,7 @@ import * as qrcode from 'qrcode-terminal';
 import { getMessageText } from './message-parser';
 import { sendText } from './sender';
 import { sendResult } from './send-result';
-import { handleWhatsappMessage } from '../../services/oracle';
+import { handleMessage } from '../../services/oracle';
 
 export async function startWhatsappBot() {
   const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
@@ -58,7 +58,7 @@ export async function startWhatsappBot() {
     const text = getMessageText(msg);
     if (!text.trim()) return;
 
-    const response = handleWhatsappMessage(jid, text);
+    const response = handleMessage(jid, text);
 
     if (typeof response === 'string') {
       await sendText(sock, jid, response);
