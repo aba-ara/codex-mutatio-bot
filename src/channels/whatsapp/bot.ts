@@ -1,3 +1,4 @@
+import pino from 'pino';
 import makeWASocket, {
   DisconnectReason,
   fetchLatestBaileysVersion,
@@ -19,6 +20,7 @@ export async function startWhatsappBot() {
   const sock = makeWASocket({
     version,
     auth: state,
+    logger: pino({ level: 'silent' }),
     printQRInTerminal: true,
     browser: ['Codex Mutatio', 'Chrome', '1.0.0'],
     markOnlineOnConnect: false,
@@ -26,7 +28,7 @@ export async function startWhatsappBot() {
     shouldSyncHistoryMessage: () => false,
     generateHighQualityLinkPreview: false,
     connectTimeoutMs: 60000,
-    defaultQueryTimeoutMs: 60000,
+    defaultQueryTimeoutMs: 120000,
     keepAliveIntervalMs: 10000
   });
 
